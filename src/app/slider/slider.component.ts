@@ -19,6 +19,7 @@ export class SliderComponent implements OnInit {
   private _initialIndex: number = 0;
 
   /* specific variables */
+  private _resize_timeout_handle = null;
   private _interval_handle = null;
   private _current_offset = 0;
   private _slider_container = null;
@@ -28,67 +29,33 @@ export class SliderComponent implements OnInit {
     return this._itemSelector;
   }
 
-  public set itemSelector(value: string) {
-    this._itemSelector = value;
-  }
-
-  get scrollingSpeed(): number {
-    return this._scrollingSpeed;
-  }
-
-  set scrollingSpeed(value: number) {
-    this._scrollingSpeed = value;
-  }
-
-  get autoScrolling(): boolean {
-    return this._autoScrolling;
-  }
-
-  set autoScrolling(value: boolean) {
-    this._autoScrolling = value;
-  }
-
-  get interval(): number {
-    return this._interval;
-  }
-
-  set interval(value: number) {
-    this._interval = value;
-  }
-
-  get loop(): boolean {
-    return this._loop;
-  }
-
-  set loop(value: boolean) {
-    this._loop = value;
-  }
-
-  get initialIndex(): number {
-    return this._initialIndex;
-  }
-
-  set initialIndex(value: number) {
-    this._initialIndex = value;
-  }
-
-  get sliderIndex(): number {
-    return this._sliderIndex;
-  }
-
-  set sliderIndex(value: number) {
-    this._sliderIndex = value;
-  }
-
   constructor() {
 
   }
 
-
   public initSlider() {
     this.DOM = getDOM();
+    this.registerResizeEvent();
     this.initItems();
     this.setSliderContainerWidth();
+  }
+
+  private registerResizeEvent() {
+    addEventListener('resize', this._onResize.bind(this));
+  }
+
+  public _onResize(){
+    if (this._resize_timeout_handle) {
+      clearTimeout(this._resize_timeout_handle);
+    }
+    this._resize_timeout_handle = setTimeout(() => {
+      this.windowResized();
+    }, 333);
+  }
+
+  public windowResized() {
+    this.setSliderContainerWidth();
+    this.fixSliderOffset();
   }
 
   public initItems() {
@@ -112,6 +79,12 @@ export class SliderComponent implements OnInit {
     this._current_offset = offset;
   }
 
+  private fixSliderOffset() {
+    let current_item = this._items[this._sliderIndex];
+    let item_offset = current_item.offsetLeft;
+    this.setSliderContainerOffset(-item_offset);
+  }
+
   public getItemWidth() {
     let firstItem = this._items[0];
     return firstItem.offsetWidth + 1; // TODO: get a more precise width
@@ -130,7 +103,19 @@ export class SliderComponent implements OnInit {
     }
   }
 
+  public canGoNext() {
+    let container_width = this._slider_container.parentNode.offsetWidth;
+    let item_width = this.getItemWidth();
+    let items_in_view = Math.round(container_width / item_width);
+    let result = items_in_view < this._items.length;
+    return result;
+  }
+
   public goNext() {
+    if (!this.canGoNext()) {
+      this.goTo(0);
+      return;
+    }
     let item_width = this.getItemWidth();
     let target_offset = this._current_offset - item_width;
     this._sliderIndex += 1;
@@ -144,8 +129,11 @@ export class SliderComponent implements OnInit {
     this.setSliderContainerOffset(target_offset);
   }
 
-  public moveTo(index: number) {
-
+  public goTo(index: number) {
+    let target_item = this._items[index];
+    let item_offset = target_item.offsetLeft;
+    this._sliderIndex = index;
+    this.setSliderContainerOffset(-item_offset);
   }
 
   //life cycles

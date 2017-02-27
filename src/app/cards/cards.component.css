@@ -36,12 +36,12 @@ div.card span {
 
 @media (max-width: 480px) {
   div.card {
-    width: 100%;
+    width: 100vw;
   }
 }
 
 @media (min-width: 481px) and (max-width: 768px) {
   div.card {
-    width: 50%;
+    width: 50vw;
   }
 }
