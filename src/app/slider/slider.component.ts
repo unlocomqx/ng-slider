@@ -18,6 +18,7 @@ export class SliderComponent implements OnInit {
   private _sliderIndex: number = 0;
   private _initialIndex: number = 0;
 
+  /* specific variables */
   private _interval_handle = null;
   private _current_offset = 0;
   private _slider_container = null;
@@ -90,7 +91,7 @@ export class SliderComponent implements OnInit {
     this.setSliderContainerWidth();
   }
 
-  private initItems() {
+  public initItems() {
     this._items = this.DOM.querySelectorAll(
       this.DOM.query('body'), // TODO: set to component native element
       this._itemSelector
@@ -105,13 +106,13 @@ export class SliderComponent implements OnInit {
     this._slider_container.style.width = sliderWidth + 'px';
   }
 
-  private setSliderContainerOffset(offset: number) {
+  public setSliderContainerOffset(offset: number) {
     let transform = 'translateX(' + offset + 'px)';
     this._slider_container.style.transform = transform;
     this._current_offset = offset;
   }
 
-  private getItemWidth() {
+  public getItemWidth() {
     let firstItem = this._items[0];
     return firstItem.offsetWidth + 1; // TODO: get a more precise width
   }
@@ -121,7 +122,6 @@ export class SliderComponent implements OnInit {
       this.goNext();
     }, this._interval);
   }
-
 
   public pauseSlider() {
     if (this._interval_handle) {
@@ -138,7 +138,10 @@ export class SliderComponent implements OnInit {
   }
 
   public goPrev() {
-
+    let item_width = this.getItemWidth();
+    let target_offset = this._current_offset + item_width;
+    this._sliderIndex -= 1;
+    this.setSliderContainerOffset(target_offset);
   }
 
   public moveTo(index: number) {
