@@ -5,6 +5,11 @@ div.cards {
   overflow: hidden;
 }
 
+div.slider {
+  transition: transform .2s ease-out;
+  will-change: transform;
+}
+
 div.card {
   float: left;
   line-height: 100%;

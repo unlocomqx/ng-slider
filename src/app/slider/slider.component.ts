@@ -1,4 +1,6 @@
 import {Component, OnInit} from '@angular/core';
+import {getDOM} from "@angular/platform-browser/src/dom/dom_adapter";
+import {forEach} from "@angular/router/src/utils/collection";
 
 @Component({
   selector: 'app-slider',
@@ -6,13 +8,28 @@ import {Component, OnInit} from '@angular/core';
   styleUrls: ['./slider.component.css']
 })
 export class SliderComponent implements OnInit {
+
+  private DOM: any;
+  public _itemSelector: string;
   private _scrollingSpeed: number = 700;
   private _autoScrolling: boolean = true;
-  private _interval: number = 3000;
+  private _interval: number = 2000;
   private _loop: boolean = true;
   private _sliderIndex: number = 0;
   private _initialIndex: number = 0;
 
+  private _interval_handle = null;
+  private _current_offset = 0;
+  private _slider_container = null;
+  private _items;
+
+  public get itemSelector(): string {
+    return this._itemSelector;
+  }
+
+  public set itemSelector(value: string) {
+    this._itemSelector = value;
+  }
 
   get scrollingSpeed(): number {
     return this._scrollingSpeed;
@@ -62,30 +79,74 @@ export class SliderComponent implements OnInit {
     this._sliderIndex = value;
   }
 
-
   constructor() {
-  }
-
-
-  protected static initSlider() {
 
   }
 
-  protected static moveRight() {
+
+  public initSlider() {
+    this.DOM = getDOM();
+    this.initItems();
+    this.setSliderContainerWidth();
   }
 
-  protected static moveLeft() {
+  private initItems() {
+    this._items = this.DOM.querySelectorAll(
+      this.DOM.query('body'), // TODO: set to component native element
+      this._itemSelector
+    );
   }
 
-  protected static pause() {
+  public setSliderContainerWidth() {
+    let itemWidth = this.getItemWidth(); // TODO: get a more precise width
+    let sliderWidth = itemWidth * (this._items.length + 1);
+    let firstItem = this._items[0];
+    this._slider_container = firstItem.parentNode;
+    this._slider_container.style.width = sliderWidth + 'px';
   }
 
-  protected static moveTo(index: number) {
+  private setSliderContainerOffset(offset: number) {
+    let transform = 'translateX(' + offset + 'px)';
+    this._slider_container.style.transform = transform;
+    this._current_offset = offset;
   }
 
+  private getItemWidth() {
+    let firstItem = this._items[0];
+    return firstItem.offsetWidth + 1; // TODO: get a more precise width
+  }
+
+  public startSlider() {
+    this._interval_handle = setInterval( () => {
+      this.goNext();
+    }, this._interval);
+  }
+
+
+  public pauseSlider() {
+    if (this._interval_handle) {
+      clearInterval(this._interval_handle);
+      this._interval_handle = null;
+    }
+  }
+
+  public goNext() {
+    let item_width = this.getItemWidth();
+    let target_offset = this._current_offset - item_width;
+    this._sliderIndex += 1;
+    this.setSliderContainerOffset(target_offset);
+  }
+
+  public goPrev() {
+
+  }
+
+  public moveTo(index: number) {
+
+  }
 
   //life cycles
   ngOnInit() {
-  }
 
+  }
 }
