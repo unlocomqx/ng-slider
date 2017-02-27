@@ -47,9 +47,7 @@ export class SliderComponent implements OnInit {
   public _onResize() {
     if (this._immediateResize) {
       if ('requestAnimationFrame' in window) {
-        window.requestAnimationFrame(() => {
-          this.windowResized();
-        });
+        window.requestAnimationFrame(this.windowResized.bind(this));
       } else {
         this.windowResized();
       }
@@ -57,9 +55,7 @@ export class SliderComponent implements OnInit {
       if (this._resizeTimeoutHandle) {
         clearTimeout(this._resizeTimeoutHandle);
       }
-      this._resizeTimeoutHandle = setTimeout(() => {
-        this.windowResized();
-      }, 100);
+      this._resizeTimeoutHandle = setTimeout(this.windowResized.bind(this), 100);
     }
   }
 
@@ -105,9 +101,7 @@ export class SliderComponent implements OnInit {
       this._sliderContainer.offsetHeight;
       this._sliderContainer.style.transitionDuration = '';
     } else {
-      setTimeout(() => {
-        this.handleTransitionEnd()
-      }, this._scrollingDuration);
+      setTimeout(this.handleTransitionEnd.bind(this), this._scrollingDuration);
     }
   }
 
@@ -123,9 +117,7 @@ export class SliderComponent implements OnInit {
   }
 
   public startSlider() {
-    this._intervalHandle = setInterval(() => {
-      this.goNext();
-    }, this._interval);
+    this._intervalHandle = setInterval(this.goNext.bind(this), this._interval);
   }
 
   public pauseSlider() {
