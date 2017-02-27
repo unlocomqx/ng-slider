@@ -17,7 +17,7 @@ export class SliderComponent implements OnInit {
   private _loop: boolean = true;
   private _sliderIndex: number = 0;
   private _initialIndex: number = 0;
-  private immediateResize: boolean= true;
+  private immediateResize: boolean = true;
 
   /* specific variables */
   private _resize_timeout_handle = null;
@@ -37,7 +37,7 @@ export class SliderComponent implements OnInit {
   public initSlider() {
     this.DOM = getDOM();
     this.registerResizeEvent();
-    this.initItems();
+    this.initItems(true);
     this.setSliderContainerWidth();
   }
 
@@ -45,18 +45,18 @@ export class SliderComponent implements OnInit {
     addEventListener('resize', this._onResize.bind(this));
   }
 
-  public _onResize(){
+  public _onResize() {
     if (this.immediateResize) {
       window.requestAnimationFrame(() => {
         this.windowResized();
       });
     } else {
       if (this._resize_timeout_handle) {
-       clearTimeout(this._resize_timeout_handle);
-       }
-       this._resize_timeout_handle = setTimeout(() => {
-       this.windowResized();
-       }, 100);
+        clearTimeout(this._resize_timeout_handle);
+      }
+      this._resize_timeout_handle = setTimeout(() => {
+        this.windowResized();
+      }, 100);
     }
   }
 
@@ -65,16 +65,21 @@ export class SliderComponent implements OnInit {
     this.fixSliderOffset();
   }
 
-  public handleTransitionEnd(){
+  public handleTransitionEnd() {
     this._slider_container.className = this._slider_container.className.replace(' no-transition', '');
     this.queueFirstItem();
   }
 
-  public initItems() {
+  public initItems(setIndex: boolean = false) {
     this._items = this.DOM.querySelectorAll(
       this.DOM.query('body'), // TODO: set to component native element
       this._itemSelector
     );
+    if (setIndex) {
+      this._items.forEach((item, index) => {
+        item.setAttribute('index', index);
+      });
+    }
   }
 
   public setSliderContainerWidth() {
@@ -115,7 +120,7 @@ export class SliderComponent implements OnInit {
   }
 
   public startSlider() {
-    this._interval_handle = setInterval( () => {
+    this._interval_handle = setInterval(() => {
       this.goNext();
     }, this._interval);
   }
@@ -137,7 +142,7 @@ export class SliderComponent implements OnInit {
 
   public goNext() {
     if (!this.canGoNext()) {
-      this.goTo(0);
+      this.resetItems();
       return;
     }
     let item_width = this.getItemWidth();
@@ -170,6 +175,24 @@ export class SliderComponent implements OnInit {
       this.setSliderContainerOffset(0, false);
       this.initItems();
     }
+  }
+
+  private resetItems(){
+    // restore items original order
+    this.initItems();
+    let prepended = false;
+    this._items.forEach((item, index) => {
+      let item_index = Number(item.getAttribute('index'));
+      if (item_index < index) {
+        let parentNode = item.parentNode;
+        if (!prepended) {
+          parentNode.prepend(item);
+          prepended = true;
+        } else {
+          item.insertBefore(parentNode.children[1]);
+        }
+      }
+    });
   }
 
   //life cycles
