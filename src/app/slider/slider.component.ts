@@ -11,12 +11,13 @@ export class SliderComponent implements OnInit {
 
   private DOM: any;
   public _itemSelector: string;
-  private _scrollingSpeed: number = 700;
+  private _scrollingDuration: number = 300;
   private _autoScrolling: boolean = true;
   private _interval: number = 2000;
   private _loop: boolean = true;
   private _sliderIndex: number = 0;
   private _initialIndex: number = 0;
+  private immediateResize: boolean= true;
 
   /* specific variables */
   private _resize_timeout_handle = null;
@@ -45,17 +46,28 @@ export class SliderComponent implements OnInit {
   }
 
   public _onResize(){
-    if (this._resize_timeout_handle) {
-      clearTimeout(this._resize_timeout_handle);
+    if (this.immediateResize) {
+      window.requestAnimationFrame(() => {
+        this.windowResized();
+      });
+    } else {
+      if (this._resize_timeout_handle) {
+       clearTimeout(this._resize_timeout_handle);
+       }
+       this._resize_timeout_handle = setTimeout(() => {
+       this.windowResized();
+       }, 100);
     }
-    this._resize_timeout_handle = setTimeout(() => {
-      this.windowResized();
-    }, 333);
   }
 
   public windowResized() {
     this.setSliderContainerWidth();
     this.fixSliderOffset();
+  }
+
+  public handleTransitionEnd(){
+    this._slider_container.className = this._slider_container.className.replace(' no-transition', '');
+    this.queueFirstItem();
   }
 
   public initItems() {
@@ -73,10 +85,22 @@ export class SliderComponent implements OnInit {
     this._slider_container.style.width = sliderWidth + 'px';
   }
 
-  public setSliderContainerOffset(offset: number) {
+  public setSliderContainerOffset(offset: number, transition: boolean = true) {
+    if (!transition) {
+      this._slider_container.style.transitionDuration = '0s';
+    }
     let transform = 'translateX(' + offset + 'px)';
     this._slider_container.style.transform = transform;
     this._current_offset = offset;
+    if (!transition) {
+      // force repaint before restoring animation duration
+      this._slider_container.offsetHeight;
+      this._slider_container.style.transitionDuration = '';
+    } else {
+      setTimeout(() => {
+        this.handleTransitionEnd()
+      }, this._scrollingDuration);
+    }
   }
 
   private fixSliderOffset() {
@@ -134,6 +158,18 @@ export class SliderComponent implements OnInit {
     let item_offset = target_item.offsetLeft;
     this._sliderIndex = index;
     this.setSliderContainerOffset(-item_offset);
+  }
+
+  private queueFirstItem() {
+    if (this._sliderIndex > 0) {
+      let first_item = this._items[0];
+      let item_parent = first_item.parentNode;
+      item_parent.appendChild(first_item);
+      this._sliderIndex = 0;
+      this._slider_container.style.transitionDuration = '0s';
+      this.setSliderContainerOffset(0, false);
+      this.initItems();
+    }
   }
 
   //life cycles
