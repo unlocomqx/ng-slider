@@ -18,6 +18,5 @@ export class CardsComponent extends SliderComponent implements OnInit{
   ngOnInit() {
     this._itemSelector = 'div.card';
     this.initSlider();
-    this.startSlider();
   }
 }

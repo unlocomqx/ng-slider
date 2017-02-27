@@ -34,11 +34,14 @@ export class SliderComponent implements OnInit {
 
   }
 
-  public initSlider() {
+  public initSlider(autoStart: boolean = true) {
     this.DOM = getDOM();
     this.registerResizeEvent();
     this.initItems(true);
     this.setSliderContainerWidth();
+    if (autoStart) {
+      this.startSlider();
+    }
   }
 
   private registerResizeEvent() {
@@ -189,7 +192,7 @@ export class SliderComponent implements OnInit {
           parentNode.prepend(item);
           prepended = true;
         } else {
-          item.insertBefore(parentNode.children[1]);
+          parentNode.insertBefore(item, parentNode.children[1]);
         }
       }
     });
