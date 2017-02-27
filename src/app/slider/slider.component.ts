@@ -15,15 +15,15 @@ export class SliderComponent implements OnInit {
   private _autoScrolling: boolean = true;
   private _interval: number = 2000;
   private _loop: boolean = true;
-  private _sliderIndex: number = 0;
   private _initialIndex: number = 0;
   private _immediateResize: boolean = true;
-
   /* specific variables */
-  private _resize_timeout_handle = null;
-  private _interval_handle = null;
-  private _current_offset = 0;
-  private _slider_container = null;
+
+  private _sliderIndex: number = 0;
+  private _resizeTimeoutHandle = null;
+  private _intervalHandle = null;
+  private _currentOffset = 0;
+  private _sliderContainer = null;
   private _items;
 
   constructor() {
@@ -54,10 +54,10 @@ export class SliderComponent implements OnInit {
         this.windowResized();
       }
     } else {
-      if (this._resize_timeout_handle) {
-        clearTimeout(this._resize_timeout_handle);
+      if (this._resizeTimeoutHandle) {
+        clearTimeout(this._resizeTimeoutHandle);
       }
-      this._resize_timeout_handle = setTimeout(() => {
+      this._resizeTimeoutHandle = setTimeout(() => {
         this.windowResized();
       }, 100);
     }
@@ -69,7 +69,7 @@ export class SliderComponent implements OnInit {
   }
 
   public handleTransitionEnd() {
-    this._slider_container.className = this._slider_container.className.replace(' no-transition', '');
+    this._sliderContainer.className = this._sliderContainer.className.replace(' no-transition', '');
     this.queueFirstItem();
   }
 
@@ -89,21 +89,21 @@ export class SliderComponent implements OnInit {
     let itemWidth = this.getItemWidth(); // TODO: get a more precise width
     let sliderWidth = itemWidth * (this._items.length + 1);
     let firstItem = this._items[0];
-    this._slider_container = firstItem.parentNode;
-    this._slider_container.style.width = sliderWidth + 'px';
+    this._sliderContainer = firstItem.parentNode;
+    this._sliderContainer.style.width = sliderWidth + 'px';
   }
 
   public setSliderContainerOffset(offset: number, transition: boolean = true) {
     if (!transition) {
-      this._slider_container.style.transitionDuration = '0s';
+      this._sliderContainer.style.transitionDuration = '0s';
     }
     let transform = 'translateX(' + offset + 'px)';
-    this._slider_container.style.transform = transform;
-    this._current_offset = offset;
+    this._sliderContainer.style.transform = transform;
+    this._currentOffset = offset;
     if (!transition) {
       // force repaint before restoring animation duration
-      this._slider_container.offsetHeight;
-      this._slider_container.style.transitionDuration = '';
+      this._sliderContainer.offsetHeight;
+      this._sliderContainer.style.transitionDuration = '';
     } else {
       setTimeout(() => {
         this.handleTransitionEnd()
@@ -123,20 +123,20 @@ export class SliderComponent implements OnInit {
   }
 
   public startSlider() {
-    this._interval_handle = setInterval(() => {
+    this._intervalHandle = setInterval(() => {
       this.goNext();
     }, this._interval);
   }
 
   public pauseSlider() {
-    if (this._interval_handle) {
-      clearInterval(this._interval_handle);
-      this._interval_handle = null;
+    if (this._intervalHandle) {
+      clearInterval(this._intervalHandle);
+      this._intervalHandle = null;
     }
   }
 
   public canGoNext() {
-    let container_width = this._slider_container.parentNode.offsetWidth;
+    let container_width = this._sliderContainer.parentNode.offsetWidth;
     let item_width = this.getItemWidth();
     let items_in_view = Math.round(container_width / item_width);
     let result = items_in_view < this._items.length;
@@ -149,14 +149,14 @@ export class SliderComponent implements OnInit {
       return;
     }
     let item_width = this.getItemWidth();
-    let target_offset = this._current_offset - item_width;
+    let target_offset = this._currentOffset - item_width;
     this._sliderIndex += 1;
     this.setSliderContainerOffset(target_offset);
   }
 
   public goPrev() {
     let item_width = this.getItemWidth();
-    let target_offset = this._current_offset + item_width;
+    let target_offset = this._currentOffset + item_width;
     this._sliderIndex -= 1;
     this.setSliderContainerOffset(target_offset);
   }
@@ -174,13 +174,13 @@ export class SliderComponent implements OnInit {
       let item_parent = first_item.parentNode;
       item_parent.appendChild(first_item);
       this._sliderIndex = 0;
-      this._slider_container.style.transitionDuration = '0s';
+      this._sliderContainer.style.transitionDuration = '0s';
       this.setSliderContainerOffset(0, false);
       this.initItems();
     }
   }
 
-  private resetItems(){
+  private resetItems() {
     // restore items original order
     this.initItems();
     this._items.forEach((item, index) => {
