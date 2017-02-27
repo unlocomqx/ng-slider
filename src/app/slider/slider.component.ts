@@ -17,7 +17,7 @@ export class SliderComponent implements OnInit {
   private _loop: boolean = true;
   private _sliderIndex: number = 0;
   private _initialIndex: number = 0;
-  private immediateResize: boolean = true;
+  private _immediateResize: boolean = true;
 
   /* specific variables */
   private _resize_timeout_handle = null;
@@ -25,10 +25,6 @@ export class SliderComponent implements OnInit {
   private _current_offset = 0;
   private _slider_container = null;
   private _items;
-
-  public get itemSelector(): string {
-    return this._itemSelector;
-  }
 
   constructor() {
 
@@ -49,10 +45,14 @@ export class SliderComponent implements OnInit {
   }
 
   public _onResize() {
-    if (this.immediateResize) {
-      window.requestAnimationFrame(() => {
+    if (this._immediateResize) {
+      if ('requestAnimationFrame' in window) {
+        window.requestAnimationFrame(() => {
+          this.windowResized();
+        });
+      } else {
         this.windowResized();
-      });
+      }
     } else {
       if (this._resize_timeout_handle) {
         clearTimeout(this._resize_timeout_handle);
@@ -183,7 +183,6 @@ export class SliderComponent implements OnInit {
   private resetItems(){
     // restore items original order
     this.initItems();
-    let prepended = false;
     this._items.forEach((item, index) => {
       let item_index = Number(item.getAttribute('index'));
       if (item_index < index) {
@@ -191,6 +190,7 @@ export class SliderComponent implements OnInit {
         parentNode.insertBefore(item, this._items[0]);
       }
     });
+    this.initItems();
   }
 
   //life cycles
