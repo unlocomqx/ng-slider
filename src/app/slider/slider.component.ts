@@ -188,12 +188,7 @@ export class SliderComponent implements OnInit {
       let item_index = Number(item.getAttribute('index'));
       if (item_index < index) {
         let parentNode = item.parentNode;
-        if (!prepended) {
-          parentNode.prepend(item);
-          prepended = true;
-        } else {
-          parentNode.insertBefore(item, parentNode.children[1]);
-        }
+        parentNode.insertBefore(item, this._items[0]);
       }
     });
   }
