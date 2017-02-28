@@ -1,13 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import {SliderComponent} from "../slider/slider.component";
-import { getDOM } from '@angular/platform-browser/src/dom/dom_adapter';
+import {Component, OnInit} from "@angular/core";
+import {Slider} from "../classes/slider";
 
 @Component({
   selector: 'app-cards',
   templateUrl: './cards.component.html',
   styleUrls: ['./cards.component.css']
 })
-export class CardsComponent extends SliderComponent implements OnInit{
+export class CardsComponent extends Slider implements OnInit{
 
   constructor() {
     super();

@@ -1,13 +1,6 @@
-import {Component, OnInit} from '@angular/core';
 import {getDOM} from "@angular/platform-browser/src/dom/dom_adapter";
-import {forEach} from "@angular/router/src/utils/collection";
 
-@Component({
-  selector: 'app-slider',
-  templateUrl: './slider.component.html',
-  styleUrls: ['./slider.component.css']
-})
-export class SliderComponent implements OnInit {
+export class Slider {
 
   private DOM: any;
   public _itemSelector: string;
@@ -17,8 +10,8 @@ export class SliderComponent implements OnInit {
   private _loop: boolean = true;
   private _initialIndex: number = 0;
   private _immediateResize: boolean = true;
-  /* specific variables */
 
+  /* specific variables */
   private _sliderIndex: number = 0;
   private _resizeTimeoutHandle = null;
   private _intervalHandle = null;
@@ -185,8 +178,4 @@ export class SliderComponent implements OnInit {
     this.initItems();
   }
 
-  //life cycles
-  ngOnInit() {
-
-  }
 }
