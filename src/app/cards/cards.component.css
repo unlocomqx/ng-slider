@@ -1,5 +1,4 @@
 div.cards {
-  padding: 5px;
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
@@ -20,6 +19,7 @@ div.card {
   height: 250px;
   border: 3px solid #fff;
   width: 33vw;
+  width: calc(100vw / 3);
   background: #03a9f4;
   box-sizing: border-box;
 }

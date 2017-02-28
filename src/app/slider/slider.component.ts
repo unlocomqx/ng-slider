@@ -41,7 +41,7 @@ export class SliderComponent implements OnInit {
   }
 
   private registerResizeEvent() {
-    addEventListener('resize', this._onResize.bind(this));
+    window.addEventListener('resize', this._onResize.bind(this));
   }
 
   public _onResize() {
